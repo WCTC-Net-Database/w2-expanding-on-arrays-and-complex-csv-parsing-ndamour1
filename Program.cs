@@ -1,115 +1,214 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
-class Program
+namespace W2_assignment_template
 {
-    static string[] lines;
-
-    static void Main()
+    public class Program
     {
-        string filePath = "input.csv";
-        lines = File.ReadAllLines(filePath);
+        static string filePath = "input.csv";
 
-        while (true)
+        static void Main(string[] args)
         {
-            Console.WriteLine("Menu:");
-            Console.WriteLine("1. Display Characters");
-            Console.WriteLine("2. Add Character");
-            Console.WriteLine("3. Level Up Character");
-            Console.WriteLine("4. Exit");
-            Console.Write("Enter your choice: ");
-            string choice = Console.ReadLine();
-
-            switch (choice)
+            // Main loop
+            while (true)
             {
-                case "1":
-                    DisplayAllCharacters(lines);
-                    break;
-                case "2":
-                    AddCharacter(ref lines);
-                    break;
-                case "3":
-                    LevelUpCharacter(lines);
-                    break;
-                case "4":
-                    return;
-                default:
-                    Console.WriteLine("Invalid choice. Please try again.");
-                    break;
+                // Main menu
+                Console.Clear();
+                Console.Write("Select what you want to do.\n1. Display Characters\n2. Add Character\n3. Level Up Character\n4. Exit\n");
+
+                if (!int.TryParse(Console.ReadLine(), out int choice))
+                {
+                    Console.Write("Invalid input. Please enter a number.\n");
+                    continue;
+                }
+
+                switch (choice)
+                {
+                    case 1:
+                        DisplayCharacters();
+                        break;
+                    case 2:
+                        AddCharacter();
+                        break;
+                    case 3:
+                        LevelUpCharacter();
+                        break;
+                    case 4:
+                        Console.Write("See you again!");
+                        return;
+                    default:
+                        break;
+
+                }
+
+                // Pause to allow the user to see the result before the menu is shown again
+                Console.Write("Press any key to continue...");
+                Console.ReadKey();
             }
         }
-    }
 
-    static void DisplayAllCharacters(string[] lines)
-    {
-        // Skip the header row
-        for (int i = 1; i < lines.Length; i++)
+        // Method to read characters from file
+        static List<Character> ReadCharactersFromFile()
         {
-            string line = lines[i];
+            var characters = new List<Character>();
 
-            string name;
-            int commaIndex;
+            if (!File.Exists(filePath))
+                return characters;
 
-            // Check if the name is quoted
-            if (line.StartsWith("\""))
+            var lines = File.ReadAllLines(filePath);
+            foreach (var line in lines.Skip(1)) // Skip header
             {
-                // TODO: Find the closing quote and the comma right after it
-                // TODO: Remove quotes from the name if present and parse the name
-                // name = ...
+                var parts = line.Split(',');
+                if (parts.Length == 5)
+                {
+                    characters.Add(new Character
+                    {
+                        name = parts[0],
+                        characterClass = parts[1],
+                        level = int.Parse(parts[2]),
+                        hitPoints = int.Parse(parts[3]),
+                        equipment = parts[4].Split('|')
+                    });
+                }
+            }
+            return characters;
+        }
+
+        // Method to write characters to file
+        static void WriteCharactersToFile(List<Character> characters)
+        {
+            var lines = new List<string> { "Name, Class, Level, HP, Equipment" };
+            lines.AddRange(characters.Select(c => $"{c.name}, {c.characterClass}, {c.level}, {c.hitPoints}, {c.equipment}"));
+            File.WriteAllLines(filePath, lines);
+        }
+
+        // Method to display characters
+        static void DisplayCharacters()
+        {
+            var characters = ReadCharactersFromFile();
+            if (characters.Count == 0)
+            {
+                Console.WriteLine("No characters found.");
             }
             else
             {
-                // TODO: Name is not quoted, so store the name up to the first comma
-                // name =
+                foreach (var character in characters)
+                {
+                    Console.WriteLine(character);
+                }
+            }
+        }
+
+        // Method to add characters
+        static void AddCharacter()
+        {
+            // variable to break while loop below
+            bool notZero = false;
+
+            // Input for character's name
+            Console.Write("Enter your character's first name: ");
+            string firstName = Console.ReadLine();
+            if (firstName.StartsWith("\"") && firstName.EndsWith("\""))
+            {
+                firstName = firstName.Substring(1, firstName.Length - 1);
+            }
+            else if (firstName.StartsWith("\"") && !firstName.EndsWith("\""))
+            {
+                firstName = firstName.Substring(1, firstName.Length);
+            }
+            else if (!firstName.StartsWith("\"") && firstName.EndsWith("\""))
+            {
+                firstName = firstName.Substring(0, firstName.Length - 1);
             }
 
-            // TODO: Parse characterClass, level, hitPoints, and equipment
-            // string characterClass = ...
-            // int level = ...
-            // int hitPoints = ...
-
-            // TODO: Parse equipment noting that it contains multiple items separated by '|'
-            // string[] equipment = ...
-
-            // Display character information
-            // Console.WriteLine($"Name: {name}, Class: {characterClass}, Level: {level}, HP: {hitPoints}, Equipment: {string.Join(", ", equipment)}");
-        }
-    }
-
-    static void AddCharacter(ref string[] lines)
-    {
-        // TODO: Implement logic to add a new character
-        // Prompt for character details (name, class, level, hit points, equipment)
-        // DO NOT just ask the user to enter a new line of CSV data or enter the pipe-separated equipment string
-        // Append the new character to the lines array
-    }
-
-    static void LevelUpCharacter(string[] lines)
-    {
-        Console.Write("Enter the name of the character to level up: ");
-        string nameToLevelUp = Console.ReadLine();
-
-        // Loop through characters to find the one to level up
-        for (int i = 1; i < lines.Length; i++)
-        {
-            string line = lines[i];
-
-            // TODO: Check if the name matches the one to level up
-            // Do not worry about case sensitivity at this point
-            if (line.Contains(nameToLevelUp))
+            Console.Write("Enter your character's last name (if applicable): ");
+            string lastName = Console.ReadLine();
+            if (lastName.StartsWith("\"") && lastName.EndsWith("\""))
             {
+                lastName = lastName.Substring(1, lastName.Length - 1);
+            }
+            else if (lastName.StartsWith("\"") && !lastName.EndsWith("\""))
+            {
+                lastName = lastName.Substring(1, lastName.Length);
+            }
+            else if (!lastName.StartsWith("\"") && lastName.EndsWith("\""))
+            {
+                lastName = lastName.Substring(0, lastName.Length - 1);
+            }
 
-                // TODO: Split the rest of the fields locating the level field
-                // string[] fields = ...
-                // int level = ...
+            string name = $"{firstName} {lastName}";
 
-                // TODO: Level up the character
-                // level++;
-                // Console.WriteLine($"Character {name} leveled up to level {level}!");
+            // Input for character's class
+            Console.Write("Enter your character's class: ");
+            string characterClass = Console.ReadLine();
 
-                // TODO: Update the line with the new level
-                // lines[i] = ...
-                break;
+            // While loop to make sure level is greater than 0
+            int level = 0;
+            while (!notZero)
+            {
+                Console.Write("Enter your character's level. It must be 1 or higher. ");
+                level = int.Parse(Console.ReadLine());
+
+                if (level <= 0)
+                {
+                    Console.Write("The number you entered is less than 1. Try again. ");
+                    level = int.Parse(Console.ReadLine());
+                }
+                else
+                {
+                    notZero = true;
+                }
+            }
+
+            // Calculation for hit points
+            int hitPoints = level * 6;
+
+            // Input for character's equipment
+            Console.Write("Enter your character's equipment (separate items with a '|'): ");
+            string[] equipment = Console.ReadLine().Split('|');
+
+            // Displays the user's input for the character
+            var characters = ReadCharactersFromFile();
+            characters.Add(new Character { name = name, characterClass = characterClass, level = level, hitPoints = hitPoints, equipment = equipment });
+            WriteCharactersToFile(characters);
+            Console.WriteLine($"Welcome, {name} the {characterClass}! You are level {level} with {hitPoints} HP and your equipment includes: {string.Join(", ", equipment)}.");
+        }
+
+        // Method for leveling up character
+        public static void LevelUpCharacter()
+        {
+            Console.Write("Enter the number indexed to the character you want to level up.");
+
+            var characters = ReadCharactersFromFile();
+            Console.Write("\n");
+            int listNumber = int.Parse(Console.ReadLine()) - 1;
+            Character chosen = characters[listNumber];
+            int newLevel = 0;
+
+            // Loop to make sure user inputs a number greater than chosen character's current level
+            while (newLevel <= chosen.level)
+            {
+                Console.Write("Enter your character's new level. It must be higher than their current level. ");
+                newLevel = int.Parse(Console.ReadLine());
+
+                if (newLevel > chosen.level)
+                {
+                    WriteCharactersToFile(characters);
+                    Console.Write($"{chosen.name} is now level {newLevel} with {newLevel * 6} HP.");
+                    characters[listNumber].level = newLevel;
+                    characters[listNumber].hitPoints = newLevel * 6;
+                }
+                else if (newLevel < chosen.level)
+                {
+                    Console.Write($"The number you typed is less than {chosen.level}. Try again. ");
+                    newLevel = int.Parse(Console.ReadLine());
+                }
+                else if (newLevel == chosen.level)
+                {
+                    Console.Write($"{newLevel} is {chosen.name}'s current level. Try again. ");
+                    newLevel = int.Parse(Console.ReadLine());
+                }
             }
         }
     }
