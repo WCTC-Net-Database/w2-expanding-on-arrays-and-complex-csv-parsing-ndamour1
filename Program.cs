@@ -103,9 +103,12 @@ namespace W2_assignment_template
         // Method to add characters
         static void AddCharacter()
         {
+            // name variable
+            string name;
+            
             // variable to break while loop below
             bool notZero = false;
-
+            
             // Input for character's name
             Console.Write("Enter your character's first name: ");
             string firstName = Console.ReadLine();
@@ -121,7 +124,7 @@ namespace W2_assignment_template
             {
                 firstName = firstName.Substring(0, firstName.Length - 1);
             }
-
+            
             Console.Write("Enter your character's last name (if applicable): ");
             string lastName = Console.ReadLine();
             if (lastName.StartsWith("\"") && lastName.EndsWith("\""))
@@ -136,8 +139,14 @@ namespace W2_assignment_template
             {
                 lastName = lastName.Substring(0, lastName.Length - 1);
             }
-
-            string name = $"{firstName} {lastName}";
+            
+            if (lastName == null)
+            {
+                name = firstName;
+            } else
+            {
+                name = $"{firstName} {lastName}"; 
+            }
 
             // Input for character's class
             Console.Write("Enter your character's class: ");
